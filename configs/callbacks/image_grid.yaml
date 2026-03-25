@@ -1,0 +1,4 @@
+image_grid:
+  _target_: src.tasks.image_generation.callbacks.SaveImageGrid
+  dirpath: null # save directory
+  filename: null # filename

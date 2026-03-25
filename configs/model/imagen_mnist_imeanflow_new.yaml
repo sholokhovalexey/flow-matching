@@ -1,0 +1,56 @@
+_target_: src.tasks.image_generation.models.imagen_module.ImaGenLitModule
+
+net:
+  _target_: src.backbones.ModelWrapper
+  model:
+    _target_: src.tasks.image_generation.models.backbones.UNet2DModel
+    sample_size: [32, 32] # resized
+    in_channels: 1
+    out_channels: 1
+    n_blocks: 2
+    n_channels: 64
+    layers_per_block: 2
+    add_attention: False
+    center_input_sample: False
+    dropout: 0.1
+    time_embedding_type: "positional"
+    class_embed_type: null
+    num_class_embeds : 10
+  shape: [1, 32, 32]
+  cond_type: "label" # integer labels
+  num_classes: 10
+
+flow_model:
+  _target_: src.flows.ImprovedMeanFlow
+  _partial_: true
+  cond_drop_prob: 0.1
+  cfg_scale: 2.0
+  scheduler: null
+  coupling_type: "ot-exact"
+
+solver:
+  _target_: src.flows.ode.ODESolver
+  _partial_: true
+  odeint_kwargs: {atol: 1e-5, rtol: 1e-5, method: "euler"}
+
+# training
+optimizer:
+  _target_: torch.optim.Adam
+  _partial_: true
+  lr: 0.0001
+  weight_decay: 0.0
+
+scheduler: null
+  # _target_: torch.optim.lr_scheduler.CosineAnnealingLR
+  # _partial_: true
+  # T_max: 200
+  # eta_min: 0.00001
+
+ema_decay: 0.9999
+
+# inference
+num_steps: 32
+cfg_scale: 2.0
+
+# compile model for faster training with pytorch 2.0
+compile: false
