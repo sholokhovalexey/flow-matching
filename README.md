@@ -385,7 +385,7 @@ In summary, the differences between VFM and standard Flow Matching:
 
 ## Examples
 
-**Note**: the results may not match paper quality because they were obtained with limited GPU resources. Here, the CFG scale was set to 4.0.
+**Note**: the results may not match paper quality because they were obtained with limited GPU resources.
 
 ### MNIST
 
@@ -407,6 +407,7 @@ The Improved MeanFlow model seems to produce the best images with one-step infer
 | [Vanilla FM](https://arxiv.org/pdf/2210.02747) | <img src="images/cifar10/cifar10_fm_nfe=2_cfg=4.0.png"> | <img src="images/cifar10/cifar10_fm_nfe=32_cfg=4.0.png"> |
 | [Split MF](https://arxiv.org/pdf/2507.16884) | <img src="images/cifar10/cifar10_smeanflow_nfe=2_cfg=4.0.png"> | <img src="images/cifar10/cifar10_smeanflow_nfe=32_cfg=4.0.png"> |
 
+One can see that the SplitMeanFlow model was able to produce recognizable images with only two steps. Here, the CFG scale was set to 4.0.
 
 ### CelebA
 
@@ -416,6 +417,8 @@ Centered and cropped to a size of 64x64.
 | --- | --- | --- |
 | [Vanilla FM](https://arxiv.org/pdf/2210.02747) | <img src="images/celeba/celeba_fm_nfe=4_cfg=2.0.png"> | <img src="images/celeba/celeba_fm_nfe=32_cfg=2.0.png"> |
 | [Split MF](https://arxiv.org/pdf/2507.16884) | <img src="images/celeba/celeba_smeanflow_nfe=4_cfg=2.0.png"> | <img src="images/celeba/celeba_smeanflow_nfe=32_cfg=2.0.png"> |
+
+Again, SplitMeanFlow required less steps to produce images with sufficient amount of detail.
 
 ---
 
