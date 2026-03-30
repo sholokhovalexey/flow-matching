@@ -66,6 +66,8 @@ python src/train.py --config-name=train_imagen_mnist.yaml model=imagen_mnist_mea
 
 Hydra will create experiment logs under `logs/train/runs/...` with the full config tree and training logs.
 
+See below for the [results](#examples).
+
 ---
 
 ## Background
@@ -310,9 +312,9 @@ And the training target becomes the instantaneous velocity, which is **independe
 
 However, now the right hand side depends on the instantaneous velocity (inside the time derivative). The paper proposes two ways to implement $v_\theta$.
 
-1. Boundary condition reuse: using the property $v_\theta(z_t,t) = u_\theta(z_t,t,t)$, This requires no extra parameters.
+1. Boundary condition reuse: by using the property $v_\theta(z_t,t) = u_\theta(z_t,t,t)$. This requires no extra parameters.
 
-2. Auxiliary velocity head: Add a small additional prediction head for $v_\theta(z_t,t)$. This slightly increases modeling flexibility.
+2. Auxiliary velocity head: by adding a small additional prediction head for $v_\theta(z_t,t)$. This slightly increases modeling flexibility.
 
 Now the learning problem becomes a **standard regression task**, similar to Flow Matching. This formulation removes the **self-referential training target** and stabilizes optimization.
 
@@ -417,8 +419,9 @@ Centered and cropped to a size of 64x64.
 | --- | --- | --- |
 | [Vanilla FM](https://arxiv.org/pdf/2210.02747) | <img src="images/celeba/celeba_fm_nfe=4_cfg=2.0.png"> | <img src="images/celeba/celeba_fm_nfe=32_cfg=2.0.png"> |
 | [Split MF](https://arxiv.org/pdf/2507.16884) | <img src="images/celeba/celeba_smeanflow_nfe=4_cfg=2.0.png"> | <img src="images/celeba/celeba_smeanflow_nfe=32_cfg=2.0.png"> |
+| [Improved MF](https://arxiv.org/pdf/2507.16884) | <img src="images/celeba/celeba_imeanflow_nfe=4_cfg=2.0.png"> | <img src="images/celeba/celeba_imeanflow_nfe=32_cfg=2.0.png"> |
 
-Again, SplitMeanFlow required less steps to produce images with sufficient amount of detail.
+Again, MeanFlow-based models required less steps to produce images with sufficient amount of detail (CFG scale is 2.0).
 
 ---
 
@@ -432,7 +435,6 @@ Also, `jvp` significantly increases GPU memory usage.
 
 ### TODO
 - [x] Implement basic training and sampling
-- [ ] Enable multi-GPU training
 - [ ] Check [rcm](https://github.com/NVlabs/rcm) that implements FlashAttention JVP kernel
 - [ ] Try [gradient modulation](https://github.com/primepake/modular_meanflow)
 - [ ] Implement [FlowConsist](https://arxiv.org/pdf/2602.06346)
