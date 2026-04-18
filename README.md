@@ -440,8 +440,9 @@ Again, MeanFlow-based models required less steps to produce images with sufficie
 
 Speech enhancement aims to recover clean speech from a noisy/reverberant recording while preserving intelligibility, speaker traits, and naturalness. In this repository, enhancement is implemented in two spaces: STFT features at 16 kHz, and frozen latent audio codecs at 16 kHz.
 
-For flow-matching enhancement, the model learns a **conditional vector field** that maps a simple initial sample to a clean target, conditioned on the noisy observation. Conditioning uses the noisy input as side information, similar to class labels. More broadly, generative audio models often use one of three conditioning patterns: early fusion (concat at input), cross-conditioning through, *e.g.*, FiLM gates, or cross-attention where noisy features act as keys/values and the denoising state acts as queries. In this repo, conditioning is implemented with a wrapper that feeds both state and condition to the backbone by channel-wise concatenation.
+For flow-matching enhancement, the model learns a conditional vector field that maps a simple initial sample to a clean target, **conditioned on the noisy observation**. Conditioning uses the noisy input as side information, similar to class labels. More broadly, generative audio models often use one of three conditioning patterns: early fusion (concat at input), cross-conditioning through, *e.g.*, FiLM gates, or cross-attention where noisy features act as keys/values and the denoising state acts as queries. In this repo, conditioning is implemented with a wrapper that feeds both state and condition to the backbone by channel-wise concatenation.
 
+See the repos [flowmse](https://github.com/seongq/flowmse), [MeanFlowSE](https://github.com/liduojia1/MeanFlowSE) for full-scale specialized projects.
 
 To train a vanilla conditional flow matching with the non-causal NCSN++ (SGMSE) on the Voicebank dataset simply run:
 
