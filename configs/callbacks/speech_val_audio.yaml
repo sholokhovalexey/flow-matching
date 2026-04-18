@@ -1,0 +1,11 @@
+# Export one val utterance per epoch (rank 0): WAVs under ``dirpath``.
+# Baseline / Metric-GAN: clean, noisy, enhanced_ema, enhanced_online.
+# Flow (STFT or latent): clean, noisy + three samples (main NFE/CFG, alt CFG, fewer steps).
+speech_val_audio:
+  _target_: src.tasks.speech_enhancement.callbacks.SaveValSpeechSamples
+  dirpath: ${paths.output_dir}/val_audio
+  filename: "epoch_{epoch:03d}"
+  every_n_epochs: 1
+  val_batch_index: 0
+  flow_alt_cfg_scale: 3.5
+  flow_alt_num_steps: 2

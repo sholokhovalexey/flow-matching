@@ -17,6 +17,7 @@ def construct_sampler(
     cfg_scale=1.0,
     seed=42,
     device="cuda",
+    initial_noise=None,
 ):
     """Build a sampling closure that generates samples via ODE integration with CFG.
 
@@ -47,6 +48,8 @@ def construct_sampler(
     cfg_scaled_model = CFGScaledModel(net, cond, cond_null, cfg_scale=cfg_scale)
 
     x = torch.randn((batch_size, *net.shape), device=device, generator=rng)
+    if initial_noise is not None:
+        x = initial_noise
     step_size = 1 / num_steps
 
     if isinstance(flow_model, MeanFlow):
@@ -59,7 +62,11 @@ def construct_sampler(
         solver = solver_cls(u_fn)
 
         def sample():
-            x = torch.randn((batch_size, *net.shape), device=device, generator=rng)
+            x = (
+                initial_noise
+                if initial_noise is not None
+                else torch.randn((batch_size, *net.shape), device=device, generator=rng)
+            )
             x_gen = solver.sample(
                 x,
                 step_size=step_size,
@@ -78,7 +85,11 @@ def construct_sampler(
         solver = solver_cls(v_fn)
 
         def sample():
-            x = torch.randn((batch_size, *net.shape), device=device, generator=rng)
+            x = (
+                initial_noise
+                if initial_noise is not None
+                else torch.randn((batch_size, *net.shape), device=device, generator=rng)
+            )
             x_gen = solver.sample(
                 x, step_size=step_size, time_grid=torch.tensor([0.0, 1.0])
             )
@@ -92,7 +103,11 @@ def construct_sampler(
         solver = solver_cls(v_fn)
 
         def sample():
-            x = torch.randn((batch_size, *net.shape), device=device, generator=rng)
+            x = (
+                initial_noise
+                if initial_noise is not None
+                else torch.randn((batch_size, *net.shape), device=device, generator=rng)
+            )
             x_gen = solver.sample(
                 x, step_size=step_size, time_grid=torch.tensor([0.0, 1.0])
             )

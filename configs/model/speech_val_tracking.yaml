@@ -1,0 +1,28 @@
+# Shared validation defaults for speech enhancement models (merged via ``defaults`` in each ``speech_*.yaml``).
+#
+# Waveform metrics run once per validation epoch (first batch); see ``SpeechEnhancementLitModule.validation_step``.
+# ``val_si_sdr_steps``: flow/latent = number of ODE/solver steps when sampling enhanced audio for metrics;
+# supervised modules only require ``> 0`` to enable the same metric block.
+#
+val_si_sdr_steps: 32
+val_metrics:
+  si_sdr: true
+  lsd: true
+  pesq: true
+  # Composite objective quality (Hu & Loizou): enabled to track overall quality each epoch.
+  covl: true
+  # Optional extra composite components (enable as needed).
+  csig: false
+  cbak: false
+  dnsmos: false
+  dnsmos_personalized: false
+  utmos: false
+  scoreq_natural_nr: false
+  scoreq_natural_ref: false
+  urgentmos: false
+
+# Paper-style LSD configuration for 16 kHz speech enhancement benchmarks.
+lsd_config:
+  db_range: 50.0
+  vad_db_threshold: -50.0
+  exclude_edge_bins: true

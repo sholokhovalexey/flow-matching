@@ -1,0 +1,22 @@
+# VoiceBank+DEMAND with ``<splits_root>/<split>/{clean,noisy}`` (train / valid / test).
+# Example: ``.../VoicebankDEMAND/splits/train/clean``, ``.../splits/valid/noisy``, etc.
+_target_: src.tasks.speech_enhancement.data.voicebank_demand_datamodule.VoiceBankDemandSplitsDataModule
+
+# Real directory on disk (set ``DATASETS_ROOT`` or override), e.g.
+#   data.splits_root=C:/Users/you/datasets/VoicebankDEMAND/splits
+# Do not use placeholder paths like ``C:/path/to/...``.
+splits_root: /home/ubuntu/Documents/datasets/VoicebankDEMAND/splits
+train_split: train
+# Use ``val`` if your tree uses ``val`` instead of ``valid``.
+val_split: valid
+
+sample_rate: 16000
+# ~3 s @ 16 kHz → T=376 STFT frames with ``hop_length: 128``.
+segment_length: 32000
+segment_crop_mode: random
+batch_time_align: pad_to_segment_length
+batch_size: 8
+num_workers: 0
+pin_memory: true
+seed: 42
+augment: null

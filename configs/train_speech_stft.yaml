@@ -1,0 +1,24 @@
+# @package _global_
+defaults:
+  - _self_
+  - data: speech_voicebank_splits
+  - model: speech_stft_cfm
+  - callbacks: speech_default
+  - logger: null
+  - trainer: default
+  - paths: default
+  - extras: default
+  - hydra: default
+  - experiment: null
+  - hparams_search: null
+  - optional local: default
+  - debug: null
+
+task_name: "train_speech_stft"
+
+tags: ["speech", "stft", "cfm"]
+
+train: true
+test: false
+ckpt_path: null
+seed: null

@@ -1,0 +1,67 @@
+# STFT flow matching with SGMSE NCSN++ backbone (includes custom upfirdn2d CUDA op from `sgmse`).
+defaults:
+  - speech_val_tracking
+  - _self_
+
+_target_: src.tasks.speech_enhancement.models.speech_module.SpeechEnhancementLitModule
+
+representation: stft
+sample_rate: 16000
+n_fft: 512
+hop_length: 128
+n_freq_bins: 256
+stft_mag_compression_gamma: 1.0
+max_latent_frames: 251
+causal: false
+
+net:
+  _target_: src.tasks.speech_enhancement.models.wrappers.SpeechCondWrapper
+  shape: [2, 256, 251]
+  backbone:
+    _target_: src.tasks.speech_enhancement.models.backbones.sgmse_ncsnpp.SGMSEBackbone
+    in_channels: 4
+    out_channels: 2
+    backbone_variant: ncsnpp_v2
+    sigma_min: 0.03
+    sigma_max: 1.0
+    # SGMSE NCSN++ is not a causal architecture
+    causal: false
+    nf: 32
+    ch_mult: [1, 2, 2, 2]
+    num_res_blocks: 2
+    attn_resolutions: [16]
+    image_size: 256
+    dropout: 0.0
+    centered: true
+
+flow_model:
+  _target_: src.flows.CFM
+  _partial_: true
+  cond_drop_prob: 0.1
+  cfg_scale: 1.0
+  scheduler: null
+  coupling_type: ot-exact
+
+solver:
+  _target_: src.flows.ode.ODESolver
+  _partial_: true
+  odeint_kwargs: {atol: 1e-5, rtol: 1e-5, method: euler}
+
+optimizer:
+  _target_: torch.optim.AdamW
+  _partial_: true
+  lr: 0.0001
+  weight_decay: 0.01
+
+scheduler: null
+
+ema_decay: 0.9999
+num_steps: 32
+cfg_scale: 1.0
+compile: false
+
+# Per-model LSD override (paper-style, 16 kHz).
+lsd_config:
+  db_range: 50.0
+  vad_db_threshold: -50.0
+  exclude_edge_bins: true

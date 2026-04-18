@@ -9,6 +9,7 @@ Top level:
 
 - **`configs/`**: Hydra configuration hierarchy for experiments
 - **`logs/`**: Hydra + Lightning logs and run configs
+- **`scripts/`**: utility scripts
 - **`src/`**: source code
 
 Source code (`src/`)
@@ -35,8 +36,16 @@ Source code (`src/`)
   Models and datasets for image modelling task
   - `models/imagen_module.py` - LightningModule wrapper around generative flow-based models for images
   - `models/backbones/` - image‑specific backbone wrappers
-  - `data/*_datamodule.py` - LightningDataModules for standard datasets
+  - `data/*_datamodule.py` - LightningDataModules for image datasets
   - `callbacks.py` - image‑generation‑specific callbacks
+
+- **`src/tasks/speech_enhancement/`**
+  Speech enhancement (**16 kHz** waveforms throughout) with conditional flow matching
+  - `models/speech_module.py` - LightningModule
+  - `models/wrappers.py` - concat noisy condition with flow state (FlowSE / DiTSE-style)
+  - `models/codecs/` - frozen codecs for extracting latents
+  - `models/backbones/latent_dit.py` - DiT on a fixed grid for latent-space velocity
+  - `data/*_datamodule.py` - LightningDataModules for audio datasets
 
 - **`src/tasks/*/`**
   Other generative modelling tasks
@@ -385,7 +394,7 @@ In summary, the differences between VFM and standard Flow Matching:
 
 ---
 
-## Examples
+## Task: image generation
 
 **Note**: the results may not match paper quality because they were obtained with limited GPU resources.
 
@@ -422,6 +431,36 @@ Centered and cropped to a size of 64x64.
 | [Improved MF](https://arxiv.org/pdf/2507.16884) | <img src="images/celeba/celeba_imeanflow_nfe=4_cfg=2.0.png"> | <img src="images/celeba/celeba_imeanflow_nfe=32_cfg=2.0.png"> |
 
 Again, MeanFlow-based models required less steps to produce images with sufficient amount of detail (CFG scale is 2.0).
+
+---
+
+## Task: speech enhancement
+
+**Note**: the results may not match paper quality because the experimental setup is intentionally simplified.
+
+Speech enhancement aims to recover clean speech from a noisy/reverberant recording while preserving intelligibility, speaker traits, and naturalness. In this repository, enhancement is implemented in two spaces: STFT features at 16 kHz, and frozen latent audio codecs at 16 kHz.
+
+For flow-matching enhancement, the model learns a **conditional vector field** that maps a simple initial sample to a clean target, conditioned on the noisy observation. Conditioning uses the noisy input as side information, similar to class labels. More broadly, generative audio models often use one of three conditioning patterns: early fusion (concat at input), cross-conditioning through, *e.g.*, FiLM gates, or cross-attention where noisy features act as keys/values and the denoising state acts as queries. In this repo, conditioning is implemented with a wrapper that feeds both state and condition to the backbone by channel-wise concatenation.
+
+
+To train a vanilla conditional flow matching with the non-causal NCSN++ (SGMSE) on the Voicebank dataset simply run:
+
+```bash
+python src/train.py --config-name train_speech_stft model=speech_stft_sgmse
+```
+
+### Example spectrograms
+
+Vanilla FM, steps=32:
+
+| | Audio | Spectrogram |
+| --- | --- | --- |
+| **Noisy** | [WAV](assets/audio/speech_enhancement/noisy_DEMO_input-16k_StoRm-1.wav) | <img src="images/speech_enhancement/noisy.png" width="900"> |
+| **Enhanced (non-causal NCSN++)** | [WAV](assets/audio/speech_enhancement/noncausal_ncsnpp_DEMO_input-16k_StoRm-1_enhanced.wav) | <img src="images/speech_enhancement/enhanced_noncausal.png" width="900"> |
+| **Enhanced (causal NCSN++)** | [WAV](assets/audio/speech_enhancement/causal_ncsnpp_DEMO_input-16k_StoRm-1_enhanced.wav) | <img src="images/speech_enhancement/enhanced_causal.png" width="900"> |
+
+One can notice a considerable performance gap between the causal and non-causal models. A non-causal backbone can aggregate information from both past and future along time, so each output can use evidence that is not yet available in a real-time, streaming setting. A strictly causal model only uses the current frame and its past, which is a harder denoising problem: the same noisy observation is more ambiguous when future context is unknown. The performance gap is therefore expected: causal models trade some offline quality for low-latency inference.
+
 
 ---
 
